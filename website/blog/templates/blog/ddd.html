@@ -18,6 +18,8 @@
       <h2>{{dictName}} - {{dictDescription}}</h2>
     </div>
 
+    {{dict}}
+
     <div id="word-container">
       <div class="content text-center center word">
         {{ current_word }}
@@ -47,9 +49,10 @@
       data : {
         index : 0,
         state : 'none', //none, correct, incorrect
-        dict : null,
+        dict : 'lolafdsamfio',
         loading : true,
         errored : false,
+        info: null
       },
       methods : {
         nextWord : function() {
@@ -91,19 +94,25 @@
           else return this.dict.data.words;
         },
         dictName : function() {
-          if (this.loading) return "";
+          if (this.loading) return "loading";
           else return this.dict.data.name;
         },
         dictDescription : function() {
-          if (this.loading) return "";
+          if (this.loading) return "loading";
           else return this.dict.data.description;
         }
       },
       mounted () {
         axios
-          .get('http://3.219.41.22/api/dict/1')
+          .get('http://3.219.41.22/api/dict/1', {
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            },
+          })
           .then(response => {
-            this.dict = response
+            this.dict = response;
+            console.log(response);
           })
           .catch(error => {
             console.log(error)
