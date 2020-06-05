@@ -18,8 +18,6 @@ DEBUG = True
 ALLOWED_HOSTS = [ 'localhost', 
                   '3.219.41.22']
 
-
-
 # Application definition
 
 CORS_ORIGIN_ALLOW_ALL = True
