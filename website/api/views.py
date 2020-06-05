@@ -1,8 +1,8 @@
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.parsers import JSONParser
-from api.models import Student
-from api.serializers import StudentSerializer
+from rest_framework import viewsets
+from api.models import Student, Dict, Word
+from api.serializers import StudentSerializer, DictSerializer, WordSerializer
 
 @csrf_exempt
 def student_list(request):
@@ -17,6 +17,24 @@ def student_list(request):
             serializer.save()
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
+
+@csrf_exempt
+def dict_list(request):
+    if request.method == 'GET':
+        dicts = Dict.objects.all()
+        serializer = DictSerializer(dicts, many=True)
+        return JsonResponse(serializer.data, safe=False)
+
+@csrf_exempt
+def dict_detail(request, pk):
+    try:
+        dict = Dict.objects.get(pk=pk)
+    except Student.DoesNotExist:
+        return HttpResponse(status=404)
+
+    if request.method == 'GET':
+        serializer = DictSerializer(dict)
+        return JsonResponse(serializer.data)
 
 @csrf_exempt
 def student_detail(request, pk):

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Der Die Das</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+<body>
+
+
+  <div id="app" class="wrapper">
+    <header class="page-header">
+      <h1>Lernen Sie die deutschen geschlechter</h1>
+    </header>
+
+    <div id="dict-info">
+      <h2>{{dictName}} - {{dictDescription}}</h2>
+    </div>
+
+    <div id="word-container">
+      <div class="content text-center center word">
+        {{ current_word }}
+      </div>
+      <div id="buttons">
+        <button class="btn btn-primary gender-button" v-bind:class="{ 'btn-gray' : (sent && (current_gender != 'der')), 'btn-green' : (correct && (current_gender == 'der')), 'btn-red' : (incorrect && (current_gender == 'der')) }" v-on:click="submit('der')">der</button>
+        <button class="btn btn-danger  gender-button" v-bind:class="{ 'btn-gray' : (sent && (current_gender != 'die')), 'btn-green' : (correct && (current_gender == 'die')), 'btn-red' : (incorrect && (current_gender == 'die'))}" v-on:click="submit('die')">die</button>
+        <button class="btn btn-success gender-button" v-bind:class="{ 'btn-gray' : (sent && (current_gender != 'das')), 'btn-green' : (correct && (current_gender == 'das')), 'btn-red' : (incorrect && (current_gender == 'das'))}" v-on:click="submit('das')">das</button>
+      </div>
+
+      <div class="feedback">
+        <span v-show="correct" class="correct">Correct</span>
+        <span v-show="incorrect" class="incorrect">Incorrect</span>
+        <span v-show="sent">
+          <button v-on:click="nextWord()" class="btn btn-success next-button">Next</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.js"></script>
+
+  <script>
+    app = new Vue({
+      'el' : '#app',
+      data : {
+        index : 0,
+        state : 'none', //none, correct, incorrect
+        dict : null,
+        loading : true,
+        errored : false,
+      },
+      methods : {
+        nextWord : function() {
+          this.index++;
+          if (this.index == this.words.length) this.index = 0;
+
+          this.state = 'none';
+        },
+        submit : function(ans) {
+          if (this.state == 'none'){
+            var correct = this.words[this.index]['gender'];
+
+            if (ans == correct) this.state='correct';
+            else this.state='incorrect';
+          }
+        }
+      },
+      computed : {
+        current_word_obj : function() {
+          return this.words[this.index];
+        },
+        current_gender : function() {
+          return this.current_word_obj['gender']
+        },
+        current_word : function() {
+         return this.current_word_obj['word'] 
+        },
+        sent : function() {
+          return this.state != 'none';
+        },
+        correct : function() {
+          return this.state == 'correct';
+        },
+        incorrect : function() {
+          return this.state == 'incorrect';
+        }, 
+        words : function() {
+          if (this.loading) return [];
+          else return this.dict.data.words;
+        },
+        dictName : function() {
+          if (this.loading) return "";
+          else return this.dict.data.name;
+        },
+        dictDescription : function() {
+          if (this.loading) return "";
+          else return this.dict.data.description;
+        }
+      },
+      mounted () {
+        axios
+          .get('http://3.219.41.22/api/dict/1')
+          .then(response => {
+            this.dict = response
+          })
+          .catch(error => {
+            console.log(error)
+            this.errored = true
+          })
+          .finally(() => this.loading = false)
+      }
+    })
+  </script>
+  <style>
+  #word-container {
+    color: black;
+    border: solid;
+    border-radius: 30px;
+    word-wrap:break-word;
+    align-self: center;
+  }
+
+  #word-container > * {
+    padding: 20px;
+  }
+
+  .word {
+    font-size: 100pt;
+    text-align: center;
+  }
+
+  .gender-button {
+    font-size: 60pt !important;
+    margin: 0em 0.1em;
+    border-radius: 30px !important;
+  }
+
+  #next-button {
+    margin: 0em;
+  }
+
+  .feedback {
+    text-align: center;
+    font-size: 30pt;
+  }
+
+  .correct { color : green; }
+  .incorrect { color : red; }
+
+  .btn-green, .btn-green:hover, .btn-green:active, .btn-green:visited { background-color: green !important; border-color: green !important;}
+  .btn-red, .btn-red:hover, .btn-red:active, .btn-red:active, .btn-red:visited { background-color: red !important; border-color: red !important; }
+  .btn-gray, .btn-gray:hover, .btn-gray:active, .btn-gray:active, .btn-gray:visited { background-color: gray !important; border-color: gray !important;}
+
+  .next-button {
+    font-size: 30pt !important;
+    border-radius: 15px; !important;
+  }
+
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wrapper > * {
+    padding: 40px; 
+  }
+
+  #buttons {
+    display: flex;
+    justify-content: center;
+  }
+  </style>
+</body>
+</html>
+
